@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Modify Tuition Fee Example</title>
+        <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+        <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+        <link rel="stylesheet" href="nav.css" />
+        <style>
+            /* Bright background for the page */
+            body {
+                padding: 20px;
+                color: #333; /* Dark text for contrast */
+            }
+
+            h1{
+                font-size: 40px;
+                margin-left: 20px;
+            }
+
+            #container{
+                padding: 20px;
+                margin-left: 40px;
+                font-size: 30px;
+            }
+
+            #output{
+                font-size: 20px;
+            }
+
+            #updateFeeBtn{
+                font-size: 20px;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <!-- Remember to put the navigation -->
+        <nav class="navbar">
+            <div class="logo">Tuition Center</div>
+            <ul>
+                <li><a href="createProfile.html">Create Profile</a></li>
+                <li><a href="fee.html">Fee</a></li>
+                <li><a href="#services">View Schedule</a></li>
+                <li><a href="#contact">Report</a></li>
+            </ul>
+        </nav>
+        
+        <h1>Modify Tuition Fee</h1>
+
+        <div id="container">
+            <!-- Predefined subject and initial fee -->
+            <p id="current-fee">The tuition fee for <b>Mathematics</b> is currently RM 200.</p>
+            
+            <!-- Input form to update the fee -->
+            <label for="newFee">Enter New Tuition Fee (RM):</label>
+            <input type="number" id="newFee" placeholder="Enter new fee amount" />
+            <br><br>
+            <button id="updateFeeBtn">Update Fee</button>
+            
+            <h2 id="output"></h2>
+        </div>
+
+        <py-script>
+            from js import document
+            from pyodide.ffi import create_proxy
+
+            # Function to modify tuition fee for a subject
+            def modify_tuition_fee(new_fee):
+                return f"The tuition fee for Mathematics has been successfully updated to RM {new_fee}"
+
+            # Function triggered on button click
+            def update_fee(event):
+                # Get the value from the input box
+                new_fee_amount = document.getElementById("newFee").value
+                
+                # Check if input is empty or invalid
+                if not new_fee_amount.strip():
+                    document.getElementById("output").innerHTML = "Error: Please enter a valid new fee amount!"
+                    return
+                
+                # Convert fee to a number for comparison
+                try:
+                    fee_amount = float(new_fee_amount)
+                except ValueError:
+                    document.getElementById("output").innerHTML = "Error: Please enter a numeric value!"
+                    return
+
+                # Ensure the fee amount is greater than 25
+                if fee_amount <= 25:
+                    document.getElementById("output").innerHTML = "Error: The new tuition fee must be greater than RM 25!"
+                    return
+
+                # Update the fee and display the result
+                result = modify_tuition_fee(fee_amount)
+                document.getElementById("current-fee").innerHTML = f"The tuition fee for <b>Mathematics</b> is currently RM {fee_amount}."
+                document.getElementById("output").innerHTML = result
+
+                # Clear the input field after updating
+                document.getElementById("newFee").value = ""
+
+            # Attach the function to the button using create_proxy
+            update_fee_proxy = create_proxy(update_fee)
+            document.querySelector("#updateFeeBtn").addEventListener("click", update_fee_proxy)
+        </py-script>
+    </body>
+</html>

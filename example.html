@@ -7,8 +7,20 @@
         <title>Pyscript Example</title>
         <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
         <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+        <link rel="stylesheet" href="nav.css" />
     </head>
-    <body style="font-size: 70px;">
+    <body>
+        <!-- Remember to put the navigation -->
+        <nav class="navbar">
+            <div class="logo">Tuition Center</div>
+            <ul>
+                <li><a href="createProfile.html">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+
         <py-script>
             <!-- Write your function here -->
             def calculate_sum():

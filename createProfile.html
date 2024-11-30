@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Profile Creation</title>
+        <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+        <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+        <link rel="stylesheet" href="nav.css" />
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                color: #333;
+            }
+
+            h1  {
+                font-size: 40px;
+                margin-left: 20px;
+            }
+
+            h3  {
+                font-size: 25px;
+                margin-left: 20px;
+            }
+
+            .form-container, .table-container {
+                margin-top: 2%;
+                width: 48%; /* Each section takes up 48% of the width */
+                float: left;
+            }
+
+            .table-container {
+                padding-left: 5%;
+            }
+
+            form {
+                padding: 10px;
+                border: 1px solid #fffefe;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                margin-left: 40px;
+            }
+
+            label {
+                display: block;
+                margin: 10px 0 5px;
+                font-weight: bold;
+            }
+
+            input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+            button {
+                padding: 10px 15px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th, td {
+                border: 1px solid #fffefe;
+                padding: 8px;
+                text-align: left;
+            }
+
+            th {
+                background-color: #f4f4f4;
+            }
+
+            /* Modal Styles */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+
+            .modal-content {
+                background-color: white;
+                padding: 20px;
+                border-radius: 5px;
+                width: 300px;
+                text-align: center;
+            }
+
+            .close {
+                color: red;
+                font-size: 24px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .close:hover {
+                color: #000;
+            }
+
+            @media screen and (max-width: 768px) {
+                .form-container, .table-container {
+                    width: 100%; /* Stack the form and table on smaller screens */
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Remember to put the navigation -->
+        <nav class="navbar">
+            <div class="logo">Tuition Center</div>
+            <ul>
+                <li><a href="createProfile.html">Create Profile</a></li>
+                <li><a href="fee.html">Fee</a></li>
+                <li><a href="#services">View Schedule</a></li>
+                <li><a href="#contact">Report</a></li>
+            </ul>
+        </nav>
+        <h1>Student Profile Creation</h1>
+        <h3>Control by : Admin</h3>
+        <!-- Flexbox container for side-by-side layout -->
+        <div class="form-container">
+            <!-- Form for Adding Student Profiles -->
+            <form id="student-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Enter Name" required />
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Enter Email" required />
+
+                <label for="address">Address:</label>
+                <input type="text" id="address" placeholder="Enter Address" required />
+
+                <label for="contact">Contact Number:</label>
+                <input type="text" id="contact" placeholder="Enter Contact Number" required />
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter Password" required />
+
+                <button type="button" id="addStudentBtn">Add Student</button>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <!-- Table to Display Student Profiles -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                        <th>Password</th>
+                    </tr>
+                </thead>
+                <tbody id="student-table-body">
+
+                </tbody>
+            </table>
+        </div>
+
+         <!-- Modal for displaying error message -->
+         <div id="errorModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <p id="error-message">All sections must be filled or no duplication allowed!</p>
+            </div>
+        </div>
+
+        <py-script>
+            # Pre-declared student data
+            students = [
+                {"id": "ID001", "name": "Alice", "email": "alice@example.com", "address": "123 Maple St", "contact": "1234567890", "password": "password123"},
+                {"id": "ID002", "name": "Bob", "email": "bob@example.com", "address": "456 Oak St", "contact": "9876543210", "password": "password456"}
+            ]
+        
+            # Function to auto-generate the next ID
+            def generate_id():
+                last_id = students[-1]["id"] if students else "ID000"
+                new_id = f"ID{int(last_id[2:]) + 1:03d}"
+                return new_id
+
+            # Function to validate form fields (ensure none are empty and no duplication)
+            def validate_form(name, email, address, contact, password):
+                # Check if all fields are filled
+                if not name or not email or not address or not contact or not password:
+                    return "All fields must be filled"
+
+                # Validate Name (alphabet only)
+                if not name.isalpha():
+                    return "Name must contain only letters. Exm: Sam"
+
+                # Validate Email (email format)
+                import re
+                email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                if not re.match(email_regex, email):
+                    return "Invalid email format. Exm: sam@gmail.com"
+                
+                # Validate Address (must contain both letters and numbers)
+                if not any(c.isdigit() for c in address) or not any(c.isalpha() for c in address):
+                    return "Address must contain both letters and numbers. Exm: 1, Street"
+                
+                # Validate Contact (only numbers)
+                if not contact.isdigit():
+                    return "Contact must be numeric. Exm: 0125467373"
+                
+                # Check for duplication
+                for student in students:
+                    if student["name"] == name:
+                        return "Name already exists"
+                    if student["email"] == email:
+                        return "Email already exists"
+                    if student["password"] == password:
+                        return "Password already exists"
+                
+                return None
+        
+            # Function to add a new student to the list
+            def add_student(event):
+                name = Element("name").value
+                email = Element("email").value
+                address = Element("address").value
+                contact = Element("contact").value
+                password = Element("password").value
+
+                # Validate if all fields are filled and no duplication
+                validation_error = validate_form(name, email, address, contact, password)
+                if validation_error:
+                    Element("error-message").element.innerHTML = validation_error
+                    Element("errorModal").element.style.display = "flex"  # Show modal
+                    return  # Exit if validation fails
+        
+                # Create a new student dictionary
+                new_student = {
+                    "id": generate_id(),
+                    "name": name,
+                    "email": email,
+                    "address": address,
+                    "contact": contact,
+                    "password": password
+                }
+                students.append(new_student)
+                update_table()
+                clear_form()
+        
+            # Function to update the table with student data
+            def update_table():
+                table_body = Element("student-table-body")
+                table_body.element.innerHTML = ""  # Clear current table
+        
+                for student in students:
+                    # Create a new row element <tr>
+                    row = document.createElement("tr")
+        
+                    # Create table data <td> for each student attribute
+                    id_cell = document.createElement("td")
+                    id_cell.innerHTML = student["id"]
+                    row.appendChild(id_cell)
+        
+                    name_cell = document.createElement("td")
+                    name_cell.innerHTML = student["name"]
+                    row.appendChild(name_cell)
+        
+                    email_cell = document.createElement("td")
+                    email_cell.innerHTML = student["email"]
+                    row.appendChild(email_cell)
+        
+                    address_cell = document.createElement("td")
+                    address_cell.innerHTML = student["address"]
+                    row.appendChild(address_cell)
+        
+                    contact_cell = document.createElement("td")
+                    contact_cell.innerHTML = student["contact"]
+                    row.appendChild(contact_cell)
+
+                    password_cell = document.createElement("td")
+                    password_cell.innerHTML = student["password"]
+                    row.appendChild(password_cell)
+        
+                    # Append the row to the table body
+                    table_body.element.appendChild(row)
+        
+            # Function to clear the form after submission
+            def clear_form():
+                Element("name").value = ""
+                Element("email").value = ""
+                Element("address").value = ""
+                Element("contact").value = ""
+                Element("password").value = ""
+        
+            # Set up event listener for "Add Student" button
+            Element("addStudentBtn").element.onclick = add_student
+        
+            # Initialize the table with pre-declared data
+            update_table()
+
+            # Function to close the modal when the close button is clicked
+            def close_modal(event):
+                Element("errorModal").element.style.display = "none"
+
+            # Attach the close modal function to the close button
+            Element("closeModal").element.onclick = close_modal
+        </py-script>          
+    </body>
+</html>
