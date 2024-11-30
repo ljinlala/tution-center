@@ -11,32 +11,28 @@
         <style>
             /* Bright background for the page */
             body {
-                font-size: 30px;
-                background-color: #fefefe; /* Light background */
+                padding: 20px;
                 color: #333; /* Dark text for contrast */
             }
 
-            /* Optional: Navbar styling */
-            .navbar {
-                background-color: #007bff; /* Bright color for the navbar */
+            h1{
+                font-size: 40px;
+                margin-left: 20px;
+            }
+
+            #container{
+                padding: 20px;
+                margin-left: 40px;
+                font-size: 30px;
+            }
+
+            #output{
+                font-size: 20px;
+            }
+
+            #updateFeeBtn{
+                font-size: 20px;
                 padding: 10px;
-                text-align: center;
-            }
-            .navbar ul {
-                list-style-type: none;
-                padding: 0;
-            }
-            .navbar li {
-                display: inline;
-                margin: 0 15px;
-            }
-            .navbar a {
-                text-decoration: none;
-                color: white;
-                font-weight: bold;
-            }
-            .navbar a:hover {
-                color: #ddd;
             }
         </style>
     </head>
@@ -48,23 +44,25 @@
             <ul>
                 <li><a href="createProfile.html">Create Profile</a></li>
                 <li><a href="fee.html">Fee</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#services">View Schedule</a></li>
+                <li><a href="#contact">Report</a></li>
             </ul>
         </nav>
         
         <h1>Modify Tuition Fee</h1>
 
-        <!-- Predefined subject and initial fee -->
-        <p id="current-fee">The tuition fee for <b>Mathematics</b> is currently RM 200.</p>
-        
-        <!-- Input form to update the fee -->
-        <label for="newFee">Enter New Tuition Fee (RM):</label>
-        <input type="number" id="newFee" placeholder="Enter new fee amount" />
-        <br><br>
-        <button id="updateFeeBtn">Update Fee</button>
-        
-        <h2 id="output"></h2>
+        <div id="container">
+            <!-- Predefined subject and initial fee -->
+            <p id="current-fee">The tuition fee for <b>Mathematics</b> is currently RM 200.</p>
+            
+            <!-- Input form to update the fee -->
+            <label for="newFee">Enter New Tuition Fee (RM):</label>
+            <input type="number" id="newFee" placeholder="Enter new fee amount" />
+            <br><br>
+            <button id="updateFeeBtn">Update Fee</button>
+            
+            <h2 id="output"></h2>
+        </div>
 
         <py-script>
             from js import document
