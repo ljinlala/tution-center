@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Performance Report</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .report-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Tuition Center</div>
+        <ul>
+            <li><a href="createProfile.html">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <div class="form-container">
+        <h2>Generate Teacher Performance Report</h2>
+        <label for="teacherId">Select Teacher:</label>
+        <select id="teacherId">
+            <option value="1">John Doe</option>
+            <option value="2">Jane Smith</option>
+            <option value="3">Alan Walker</option>
+        </select>
+        <br><br>
+        <button id="generateReport">Generate Report</button>
+    </div>
+
+    <div class="report-container">
+        <h3>Performance Report</h3>
+        <pre id="reportOutput">No report generated yet.</pre>
+    </div>
+
+    <py-script>
+        from datetime import datetime
+
+        # Sample teacher performance data
+        teachers_data = {
+            "1": {"name": "John Doe", "students_taught": 30, "avg_score": 85, "feedback_score": 4.5},
+            "2": {"name": "Jane Smith", "students_taught": 25, "avg_score": 90, "feedback_score": 4.8},
+            "3": {"name": "Alan Walker", "students_taught": 40, "avg_score": 80, "feedback_score": 4.3},
+        }
+
+        def generate_report(event):
+            # Get the selected teacher ID
+            teacher_id = Element("teacherId").value
+            teacher = teachers_data.get(teacher_id)
+
+            if not teacher:
+                report_text = "Error: Teacher not found."
+            else:
+                report_text = (
+                    f"Name: {teacher['name']}\n"
+                    f"Students Taught: {teacher['students_taught']}\n"
+                    f"Average Student Score: {teacher['avg_score']}%\n"
+                    f"Feedback Score: {teacher['feedback_score']} / 5\n"
+                    f"Generated On: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+                )
+
+            # Display the report
+            Element("reportOutput").element.innerText = report_text
+
+        # Bind the Python function to the button click
+        Element("generateReport").element.onclick = generate_report
+    </py-script>
+</body>
+</html>
