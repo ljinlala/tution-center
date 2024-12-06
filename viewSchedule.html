@@ -12,19 +12,20 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: white;
         }
 
         h1 {
             text-align: center;
             margin-bottom: 20px;
-            font-size: 2.5em; /* Increased font size */
-            font-weight: bold; /* Text is bold */
-            color: #333; /* Optional: Better contrast */
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
         }
 
         .schedule {
             margin: 0 auto;
-            width: 80%;
+            width: 90%;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -34,12 +35,12 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            text-align: center;
         }
 
         th, td {
             border: 1px solid #ccc;
             padding: 10px;
-            text-align: left;
         }
 
         th {
@@ -53,6 +54,11 @@
 
         tr:hover {
             background-color: #f1f1f1;
+        }
+
+        .time-slot {
+            font-weight: bold;
+            background-color: #e8e8e8;
         }
     </style>
 </head>
@@ -71,11 +77,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>Course Name</th>
-                    <th>Days</th>
                     <th>Time</th>
-                    <th>Location</th>
-                    <th>Instructor</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
                 </tr>
             </thead>
             <tbody id="scheduleBody">
@@ -85,20 +92,16 @@
     </div>
 
     <py-script>
-        # Class schedule data
+        # Class schedule data formatted by time slots and days
         class_schedule = [
-            {"Course Name": "Mathematics", "Days": "Mon, Wed", "Time": "10:00 AM - 11:30 AM", "Location": "Room 101", "Instructor": "Dr. Smith"},
-            {"Course Name": "Physics", "Days": "Tue, Thu", "Time": "1:00 PM - 2:30 PM", "Location": "Room 202", "Instructor": "Prof. Johnson"},
-            {"Course Name": "Chemistry", "Days": "Mon, Fri", "Time": "9:00 AM - 10:30 AM", "Location": "Room 303", "Instructor": "Dr. Lee"},
-            {"Course Name": "Biology", "Days": "Tue, Thu", "Time": "10:00 AM - 11:00 AM", "Location": "Room 404", "Instructor": "Dr. Davis"},
-            {"Course Name": "History", "Days": "Wed, Fri", "Time": "11:30 AM - 1:00 PM", "Location": "Room 105", "Instructor": "Prof. Martinez"},
-            {"Course Name": "Computer Science", "Days": "Mon, Wed, Fri", "Time": "2:00 PM - 3:30 PM", "Location": "Room 201", "Instructor": "Dr. Adams"},
-            {"Course Name": "Art", "Days": "Wed", "Time": "3:00 PM - 5:00 PM", "Location": "Art Studio", "Instructor": "Ms. Taylor"},
-            {"Course Name": "Music", "Days": "Fri", "Time": "1:30 PM - 3:30 PM", "Location": "Music Hall", "Instructor": "Dr. White"},
-            {"Course Name": "Economics", "Days": "Mon, Thu", "Time": "8:00 AM - 9:30 AM", "Location": "Room 305", "Instructor": "Prof. Brown"},
-            {"Course Name": "Statistics", "Days": "Tue, Thu", "Time": "8:30 AM - 10:00 AM", "Location": "Room 205", "Instructor": "Dr. Wilson"},
+            {"Time": "8:00 am - 9:00 am", "Monday": "Economics", "Tuesday": "Statistics", "Wednesday": "Economics", "Thursday": "Statistics", "Friday": "Mathematics"},
+            {"Time": "9:00 am - 10:00 am", "Monday": "Chemistry", "Tuesday": "Physics", "Wednesday": "Chemistry", "Thursday": "Physics", "Friday": "English"},
+            {"Time": "10:00 am - 11:00 am", "Monday": "Mathematics", "Tuesday": "Biology", "Wednesday": "Mathematics", "Thursday": "Biology", "Friday": "History"},
+            {"Time": "11:00 am - 12:00 pm", "Monday": "Break", "Tuesday": "Break", "Wednesday": "Break", "Thursday": "Break", "Friday": "Break"},            
+            {"Time": "1:00 pm - 2:00 pm", "Monday": "History", "Tuesday": "Art", "Wednesday": "History", "Thursday": "Art", "Friday": "Physical Education"},
+            {"Time": "2:00 pm - 3:00 pm", "Monday": "Computer Science", "Tuesday": "Physics", "Wednesday": "Computer Science", "Thursday": "Physics", "Friday": "Music"},
+            {"Time": "3:00 pm - 4:00 pm", "Monday": "Art", "Tuesday": "Statistics", "Wednesday": "Art", "Thursday": "Statistics", "Friday": "Biology"},
         ]
-
 
         # Function to populate the table body
         def load_schedule():
