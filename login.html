@@ -118,15 +118,21 @@
             if students_str:
                 students = eval(students_str)  # Convert string back to list of dicts
 
+                # Reset the message container before any validation
+                Element("message-container").element.innerHTML = ""
+
                 # Validate login details
                 for student in students:
                     if student["id"] == student_id and student["password"] == password:
-                        print("Login successful")
+                        # Show success message
                         Element("login-form").element.innerHTML = "<h3>Login Successful!</h3>"
                         return
                 
-            # If no matching student is found
-            Element("message-container").element.innerHTML = "<h3>Invalid credentials, please try again.</h3>"
+                # If no match is found, display error message
+                Element("message-container").element.innerHTML = "<h3>Invalid credentials, please try again.</h3>"
+
+
+                    
 
         # Function to reset the form and hide messages
         def resetForm():
