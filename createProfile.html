@@ -120,6 +120,47 @@
                 color: #000;
             }
 
+            /* Modal Styles for Success Modal */
+            #successModal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+
+            #successModal.modal-content {
+                background-color: #4CAF50; /* Green background for success */
+                color: white; /* White text for better contrast */
+                padding: 20px;
+                border-radius: 5px;
+                width: 300px;
+                text-align: center;
+            }
+
+            #successModal.close {
+                color: white; /* White close button */
+                font-size: 24px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            #successModal.close:hover {
+                color: #ccc; /* Lighter color on hover */
+            }
+
+            .closeSuccess {
+                color: green;
+                font-size: 24px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
             @media screen and (max-width: 768px) {
                 .form-container, .table-container {
                     width: 100%; /* Stack the form and table on smaller screens */
@@ -136,6 +177,7 @@
                 <li><a href="fee.html">Fee</a></li>
                 <li><a href="#services">View Schedule</a></li>
                 <li><a href="#contact">Report</a></li>
+                <li><a href="login.html">Login</a></li>
             </ul>
         </nav>
         <h1>Student Profile Creation</h1>
@@ -189,6 +231,15 @@
                 <p id="error-message">All sections must be filled or no duplication allowed!</p>
             </div>
         </div>
+        <!-- Modal for displaying success message -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <span class="closeSuccess" id="closeSuccessModal">&#10003;</span>
+                <p id="success-message">Student profile created successfully!</p>
+            </div>
+        </div>
+
+        
 
         <py-script>
             # Pre-declared student data
@@ -196,6 +247,12 @@
                 {"id": "ID001", "name": "Alice", "email": "alice@example.com", "address": "123 Maple St", "contact": "1234567890", "password": "password123"},
                 {"id": "ID002", "name": "Bob", "email": "bob@example.com", "address": "456 Oak St", "contact": "9876543210", "password": "password456"}
             ]
+
+            # Save the students array to localStorage
+            def save_students():
+                import js
+                js.localStorage.setItem("students", str(students))
+
         
             # Function to auto-generate the next ID
             def generate_id():
@@ -226,6 +283,9 @@
                 # Validate Contact (only numbers)
                 if not contact.isdigit():
                     return "Contact must be numeric. Exm: 0125467373"
+
+                if len(contact)!= 10:
+                    return "Contact must have 10 or 11 digit only. "
                 
                 # Check for duplication
                 for student in students:
@@ -263,9 +323,26 @@
                     "password": password
                 }
                 students.append(new_student)
+                Element("successModal").element.style.display = "flex"
+                save_students()
                 update_table()
                 clear_form()
+               
+
+            # Function to load students from localStorage
+            def load_students():
+                import js
+                try:
+                    students_str = js.localStorage.getItem("students")
+                    if students_str:
+                        return eval(students_str)  # Convert string back to a list of dictionaries
+                except Exception as e:
+                    return []
+                return []
         
+            # Initialize the students array
+            students = load_students()
+            
             # Function to update the table with student data
             def update_table():
                 table_body = Element("student-table-body")
@@ -323,6 +400,13 @@
 
             # Attach the close modal function to the close button
             Element("closeModal").element.onclick = close_modal
+
+            def close_success_modal(event):
+                Element("successModal").element.style.display = "none"
+
+            # Attach the close success modal function to the close button
+            Element("closeSuccessModal").element.onclick = close_success_modal
+
         </py-script>          
     </body>
 </html>
