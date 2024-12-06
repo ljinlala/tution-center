@@ -136,6 +136,7 @@
                 <li><a href="fee.html">Fee</a></li>
                 <li><a href="#services">View Schedule</a></li>
                 <li><a href="#contact">Report</a></li>
+                <li><a href="login.html">Login</a></li>
             </ul>
         </nav>
         <h1>Student Profile Creation</h1>
@@ -190,12 +191,20 @@
             </div>
         </div>
 
+        
+
         <py-script>
             # Pre-declared student data
             students = [
                 {"id": "ID001", "name": "Alice", "email": "alice@example.com", "address": "123 Maple St", "contact": "1234567890", "password": "password123"},
                 {"id": "ID002", "name": "Bob", "email": "bob@example.com", "address": "456 Oak St", "contact": "9876543210", "password": "password456"}
             ]
+
+            # Save the students array to localStorage
+            def save_students():
+                import js
+                js.localStorage.setItem("students", str(students))
+
         
             # Function to auto-generate the next ID
             def generate_id():
@@ -263,9 +272,24 @@
                     "password": password
                 }
                 students.append(new_student)
+                save_students()
                 update_table()
                 clear_form()
+
+            # Function to load students from localStorage
+            def load_students():
+                import js
+                try:
+                    students_str = js.localStorage.getItem("students")
+                    if students_str:
+                        return eval(students_str)  # Convert string back to a list of dictionaries
+                except Exception as e:
+                    return []
+                return []
         
+            # Initialize the students array
+            students = load_students()
+            
             # Function to update the table with student data
             def update_table():
                 table_body = Element("student-table-body")
@@ -323,6 +347,7 @@
 
             # Attach the close modal function to the close button
             Element("closeModal").element.onclick = close_modal
+
         </py-script>          
     </body>
 </html>
