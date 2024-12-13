@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Progress Report</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .report-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Monthly Progress Report</h2>
+        <label for="studentIdInput">Enter Student ID:</label>
+        <input type="text" id="studentIdInput" placeholder="Enter Student ID">
+        <br><br>
+        <button id="generateReport">View Progress Report</button>
+        <p id="errorOutput" class="error"></p>
+    </div>
+
+    <div class="report-container">
+        <h3>Progress Report</h3>
+        <pre id="reportOutput">No report generated yet.</pre>
+    </div>
+
+    <py-script>
+        from datetime import datetime
+
+        student_progress = {
+            "2300163": {
+                "name": "Woon",
+                "subjects": {
+                    "Math": 85,
+                    "Science": 90,
+                    "English": 88
+                },
+                "remarks": "Good performance"
+            },
+            "2309460": {
+                "name": "Helen",
+                "subjects": {
+                    "Math": 70,
+                    "Science": 75,
+                    "English": 80
+                },
+                "remarks": "Needs improvement"
+            },
+            "2300110": {
+                "name": "Charlie",
+                "subjects": {
+                    "Math": 95,
+                    "Science": 92,
+                    "English": 89
+                },
+                "remarks": "Excellent work"
+            },
+        }
+
+        def calculate_overall_average(subject_scores):
+            total_score = sum(subject_scores.values())
+            num_subjects = len(subject_scores)
+            return round(total_score / num_subjects, 2)
+
+        def generate_report(event):
+            # Get the entered student ID
+            student_id = Element("studentIdInput").value.strip()
+            error_output = Element("errorOutput")
+            report_output = Element("reportOutput")
+            
+            # Clear previous error message
+            error_output.element.innerText = ""
+            report_output.element.innerText = "No report generated yet."
+
+            # Validate student ID
+            if not student_id:
+                error_output.element.innerText = "Error: Please enter a Student ID."
+                return
+
+            if student_id not in student_progress:
+                error_output.element.innerText = "Error: Student ID not found. Please check and try again."
+                return
+
+            student = student_progress[student_id]
+            report_text = f"Name: {student['name']}\n\nSubjects:\n"
+            for subject, score in student["subjects"].items():
+                report_text += f"- {subject}: Score = {score}\n"
+
+            # Calculate overall average
+            overall_average = calculate_overall_average(student["subjects"])
+            report_text += f"\nOverall Average Score: {overall_average}%\n"
+            report_text += f"Remarks: {student['remarks']}\n"
+            report_text += f"Generated On: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+
+            # Display the report
+            report_output.element.innerText = report_text
+
+        # Bind the Python function to the button click
+        Element("generateReport").element.onclick = generate_report
+    </py-script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Feedback</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            background-color: #fefefe;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+
+        .success {
+            color: green;
+            font-size: 14px;
+        }
+
+        textarea,
+        select {
+            width: 100%;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .feedback-list {
+            margin-top: 20px;
+        }
+
+        .feedback-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        nav.navbar {
+            background-color: #333;
+            padding: 10px;
+        }
+
+        nav.navbar .logo {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        nav.navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+        }
+
+        nav.navbar ul li {
+            display: inline;
+            margin-right: 15px;
+        }
+
+        nav.navbar ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav.navbar ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">Tuition Center</div>
+        <ul>
+            <li><a href="createProfile.html">Create Profile</a></li>
+            <li><a href="fee.html">Fee</a></li>
+            <li><a href="viewSchedule.html">View Schedule</a></li>
+            <li><a href="agile.html">Report</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="gradeEntry.html">Grade Entry</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>Student Feedback</h1>
+
+        <!-- Feedback Form -->
+        <label for="tutorName">Select Tutor:</label>
+        <select id="tutorName">
+            <option value="">-- Select a Tutor --</option>
+            <option value="John Smith">John Smith</option>
+            <option value="Jane Doe">Jane Doe</option>
+            <option value="Emily Davis">Emily Davis</option>
+            <option value="Michael Johnson">Michael Johnson</option>
+        </select>
+        <div id="tutorNameError" class="error"></div>
+
+        <label for="feedback">Feedback:</label>
+        <textarea id="feedback" placeholder="Write your feedback here"></textarea>
+        <div id="feedbackError" class="error"></div>
+
+        <button id="submitFeedback">Submit Feedback</button>
+
+        <div id="successMessage" class="success"></div>
+    </div>
+
+    <py-script>
+        from js import document
+        from pyodide.ffi import create_proxy
+        from js import setTimeout
+
+        # Function to validate input fields
+        def validate_fields(tutor_name, feedback_text):
+            errors = {}
+
+            # Tutor Name Validation
+            if not tutor_name:
+                errors["tutorName"] = "Please select a tutor."
+
+            # Feedback Validation
+            feedback_words = feedback_text.split()
+            if not feedback_text:
+                errors["feedback"] = "Feedback cannot be empty."
+            elif len(feedback_words) < 5:
+                errors["feedback"] = "Feedback must contain at least 5 words."
+
+            return errors
+
+        # Function to display validation errors
+        def display_errors(errors):
+            tutor_name_error = document.getElementById("tutorNameError")
+            tutor_name_error.innerText = errors.get("tutorName", "")
+
+            feedback_error = document.getElementById("feedbackError")
+            feedback_error.innerText = errors.get("feedback", "")
+
+        # Function to display success message
+        def display_success_message(tutor_name, feedback_text):
+            success_message = document.getElementById("successMessage")
+            success_message.innerText = f"Feedback submitted successfully! Tutor: {tutor_name}, Feedback: {feedback_text}"
+            # Clear the message after 3 seconds
+            setTimeout(lambda: setattr(success_message, "innerText", ""), 3000)
+
+        # Function to handle feedback submission
+        def submit_feedback(event):
+            tutor_name = document.getElementById("tutorName").value
+            feedback_text = document.getElementById("feedback").value.strip()
+
+            # Validate input
+            errors = validate_fields(tutor_name, feedback_text)
+            if errors:
+                display_errors(errors)
+                return
+
+            # Clear the form and errors
+            document.getElementById("tutorName").value = ""
+            document.getElementById("feedback").value = ""
+            display_errors({})  # Clear errors
+
+            # Display success message
+            display_success_message(tutor_name, feedback_text)
+
+        # Attach the event handler
+        submit_feedback_proxy = create_proxy(submit_feedback)
+        document.getElementById("submitFeedback").addEventListener("click", submit_feedback_proxy)
+    </py-script>
+</body>
+</html>
