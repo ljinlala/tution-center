@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Teaching Schedule</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .schedule-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Weekly Teaching Schedule</h2>
+        <label for="teacherIdInput">Enter Teacher ID:</label>
+        <input type="text" id="teacherIdInput" placeholder="Enter Teacher ID">
+        <br><br>
+        <button id="viewSchedule">View Schedule</button>
+        <p id="errorOutput" class="error"></p>
+    </div>
+
+    <div class="schedule-container">
+        <h3>Teaching Schedule</h3>
+        <div id="scheduleOutput">No schedule generated yet.</div>
+    </div>
+
+    <py-script>
+        teacher_schedule = {
+            "T1": {
+                "name": "Mr. Smith",
+                "schedule": [
+                    {"day": "Monday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
+                    {"day": "Wednesday", "subject": "Physics", "time": "11:00 AM - 12:30 PM", "room": "102"},
+                    {"day": "Friday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
+                ]
+            },
+            "T2": {
+                "name": "Ms. Johnson",
+                "schedule": [
+                    {"day": "Tuesday", "subject": "English", "time": "10:00 AM - 11:30 AM", "room": "103"},
+                    {"day": "Thursday", "subject": "Literature", "time": "1:00 PM - 2:30 PM", "room": "104"},
+                ]
+            },
+        }
+
+        def generate_schedule(event):
+            teacher_id = Element("teacherIdInput").value.strip()
+            error_output = Element("errorOutput")
+            schedule_output = Element("scheduleOutput")
+            
+            # Clear previous outputs
+            error_output.element.innerText = ""
+            schedule_output.element.innerHTML = "No schedule generated yet."
+
+            # Validate input
+            if not teacher_id:
+                error_output.element.innerText = "Error: Please enter a Teacher ID."
+                return
+
+            if teacher_id not in teacher_schedule:
+                error_output.element.innerText = "Error: Teacher ID not found."
+                return
+
+            # Fetch schedule for the teacher
+            teacher = teacher_schedule[teacher_id]
+            schedule_text = f"<p><strong>Name:</strong> {teacher['name']}</p>"
+            schedule_text += "<table><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr>"
+            for entry in teacher["schedule"]:
+                schedule_text += f"<tr><td>{entry['day']}</td><td>{entry['subject']}</td><td>{entry['time']}</td><td>{entry['room']}</td></tr>"
+            schedule_text += "</table>"
+
+            # Display the schedule
+            schedule_output.element.innerHTML = schedule_text
+
+        # Bind the button click to the generate_schedule function
+        Element("viewSchedule").element.onclick = generate_schedule
+    </py-script>
+</body>
+</html>
