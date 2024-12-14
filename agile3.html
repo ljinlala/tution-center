@@ -75,6 +75,14 @@
         <label for="teacherIdInput">Enter Teacher ID:</label>
         <input type="text" id="teacherIdInput" placeholder="Enter Teacher ID">
         <br><br>
+        <label for="weekInput">Select Week:</label>
+        <select id="weekInput">
+            <option value="Week 1">Week 1</option>
+            <option value="Week 2">Week 2</option>
+            <option value="Week 3">Week 3</option>
+            <option value="Week 4">Week 4</option>
+        </select>
+        <br><br>
         <button id="viewSchedule">View Schedule</button>
         <p id="errorOutput" class="error"></p>
     </div>
@@ -89,22 +97,23 @@
             "T1": {
                 "name": "Mr. Smith",
                 "schedule": [
-                    {"day": "Monday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
-                    {"day": "Wednesday", "subject": "Physics", "time": "11:00 AM - 12:30 PM", "room": "102"},
-                    {"day": "Friday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
+                    {"week": "Week 1", "day": "Monday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
+                    {"week": "Week 2", "day": "Wednesday", "subject": "Physics", "time": "11:00 AM - 12:30 PM", "room": "102"},
+                    {"week": "Week 3", "day": "Friday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
                 ]
             },
             "T2": {
                 "name": "Ms. Johnson",
                 "schedule": [
-                    {"day": "Tuesday", "subject": "English", "time": "10:00 AM - 11:30 AM", "room": "103"},
-                    {"day": "Thursday", "subject": "Literature", "time": "1:00 PM - 2:30 PM", "room": "104"},
+                    {"week": "Week 1", "day": "Tuesday", "subject": "English", "time": "10:00 AM - 11:30 AM", "room": "103"},
+                    {"week": "Week 4", "day": "Thursday", "subject": "Literature", "time": "1:00 PM - 2:30 PM", "room": "104"},
                 ]
             },
         }
 
         def generate_schedule(event):
             teacher_id = Element("teacherIdInput").value.strip()
+            selected_week = Element("weekInput").value
             error_output = Element("errorOutput")
             schedule_output = Element("scheduleOutput")
             
@@ -121,11 +130,20 @@
                 error_output.element.innerText = "Error: Teacher ID not found."
                 return
 
-            # Fetch schedule for the teacher
+            # Fetch schedule for the teacher and week
             teacher = teacher_schedule[teacher_id]
+            filtered_schedule = [
+                entry for entry in teacher["schedule"] if entry["week"] == selected_week
+            ]
+
+            if not filtered_schedule:
+                schedule_output.element.innerHTML = f"No schedule found for {selected_week}."
+                return
+
             schedule_text = f"<p><strong>Name:</strong> {teacher['name']}</p>"
+            schedule_text += f"<p><strong>Week:</strong> {selected_week}</p>"
             schedule_text += "<table><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr>"
-            for entry in teacher["schedule"]:
+            for entry in filtered_schedule:
                 schedule_text += (
                     f"<tr>"
                     f"<td>{entry['day']}</td>"
@@ -136,11 +154,9 @@
                 )
             schedule_text += "</table>"
 
-            # Display the schedule
+            # Display the schedule for week
             schedule_output.element.innerHTML = schedule_text
 
-
-        # Bind the button click to the generate_schedule function
         Element("viewSchedule").element.onclick = generate_schedule
     </py-script>
 </body>
