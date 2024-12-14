@@ -108,11 +108,19 @@
             schedule_text = f"<p><strong>Name:</strong> {teacher['name']}</p>"
             schedule_text += "<table><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr>"
             for entry in teacher["schedule"]:
-                schedule_text += f"<tr><td>{entry['day']}</td><td>{entry['subject']}</td><td>{entry['time']}</td><td>{entry['room']}</td></tr>"
+                schedule_text += (
+                    f"<tr>"
+                    f"<td>{entry['day']}</td>"
+                    f"<td>{entry['subject']}</td>"
+                    f"<td>{entry['time']}</td>"
+                    f"<td>{entry['room']}</td>"
+                    f"</tr>"
+                )
             schedule_text += "</table>"
 
             # Display the schedule
             schedule_output.element.innerHTML = schedule_text
+
 
         # Bind the button click to the generate_schedule function
         Element("viewSchedule").element.onclick = generate_schedule
