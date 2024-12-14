@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pyscript Example</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .schedule-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Tuition Center</div>
+        <ul>
+            <li><a href="createProfile.html">Create Profile</a></li>
+            <li><a href="fee.html">Fee</a></li>
+            <li><a href="viewSchedule.html">View Schedule</a></li>
+            <li><a href="agile.html">Report</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="payment.html">Payment</a></li>
+            <li><a href="progress.html">Student Progress</a></li>
+            <li><a href="gradeEntry.html">Grade Entry</a></li>
+            <li><a href="notification.html">Send notification</a></li>
+            <li><a href="#">Yoosin</a></li>
+            <li><a href="agile3.html">Teaching Schedule</a></li>
+        </ul>
+    </nav>
+
+    <h1>Notification System</h1>
+    <textarea id="notificationMessage" placeholder="Enter your message (at least 10 characters)"></textarea>
+    <div id="messageError" style="color: red;"></div>
+    <input type="datetime-local" id="notificationDateTime">
+    <div id="dateTimeError" style="color: red;"></div>
+    <button id="sendNotification">Send Notification</button>
+    <div id="successMessage"></div>
+    <ul id="notificationList"></ul>
+
+    <script>
+        const sendNotificationButton = document.getElementById("sendNotification");
+        const notificationMessageInput = document.getElementById("notificationMessage");
+        const notificationDateTimeInput = document.getElementById("notificationDateTime");
+        const messageError = document.getElementById("messageError");
+        const dateTimeError = document.getElementById("dateTimeError");
+        const successMessage = document.getElementById("successMessage");
+        const notificationList = document.getElementById("notificationList");
+
+        let notifications = [];
+
+        function validateInput(message, dateTime) {
+            const errors = {};
+            if (!message || message.trim().length < 10) {
+                errors.message = "Message must be at least 10 characters.";
+            }
+            if (!dateTime) {
+                errors.dateTime = "Please select a valid date and time.";
+            }
+            return errors;
+        }
+
+        function displayErrors(errors) {
+            messageError.innerText = errors.message || "";
+            dateTimeError.innerText = errors.dateTime || "";
+        }
+
+        function displaySuccess(message) {
+            successMessage.innerText = message;
+            setTimeout(() => { successMessage.innerText = ""; }, 3000);
+        }
+
+        function updateNotificationList() {
+            notificationList.innerHTML = notifications.map(notif => `<li>${notif}</li>`).join('');
+        }
+
+        sendNotificationButton.addEventListener("click", () => {
+            const message = notificationMessageInput.value.trim();
+            const dateTime = notificationDateTimeInput.value.trim();
+
+            const errors = validateInput(message, dateTime);
+            if (Object.keys(errors).length > 0) {
+                displayErrors(errors);
+                return;
+            }
+
+            displayErrors({});
+            notifications.push(`${message} (Will be sent at ${dateTime})`);
+            displaySuccess("Notification sent successfully!");
+            updateNotificationList();
+
+            notificationMessageInput.value = "";
+            notificationDateTimeInput.value = "";
+        });
+    </script>
+</body>
+</html>
