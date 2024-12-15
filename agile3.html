@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weekly Teaching Schedule</title>
-    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
-    <link rel="stylesheet" href="nav.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -92,72 +89,81 @@
         <div id="scheduleOutput">No schedule generated yet.</div>
     </div>
 
-    <py-script>
-        teacher_schedule = {
-            "T1": {
-                "name": "Mr. Smith",
-                "schedule": [
-                    {"week": "Week 1", "day": "Monday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
-                    {"week": "Week 2", "day": "Wednesday", "subject": "Physics", "time": "11:00 AM - 12:30 PM", "room": "102"},
-                    {"week": "Week 3", "day": "Friday", "subject": "Math", "time": "9:00 AM - 10:30 AM", "room": "101"},
+    <script>
+        // Schedule data
+        const teacherSchedule = {
+            T1: {
+                name: "Mr. Smith",
+                schedule: [
+                    { week: "Week 1", day: "Monday", subject: "Math", time: "9:00 AM - 10:30 AM", room: "101" },
+                    { week: "Week 1", day: "Tuesday", subject: "Science", time: "11:00 AM - 12:00 PM", room: "103" },
+                    { week: "Week 1", day: "Thursday", subject: "Chemistry", time: "2:00 PM - 3:30 PM", room: "201" },
+                    { week: "Week 2", day: "Wednesday", subject: "Physics", time: "11:00 AM - 12:30 PM", room: "102" },
+                    { week: "Week 2", day: "Thursday", subject: "Biology", time: "11:00 AM - 12:30 PM", room: "202" },
+                    { week: "Week 2", day: "Friday", subject: "Science", time: "11:00 AM - 12:00 PM", room: "105" },
+                    { week: "Week 3", day: "Tuesday", subject: "Math", time: "9:00 AM - 10:30 AM", room: "101" },
+                    { week: "Week 3", day: "Friday", subject: "Science", time: "11:00 AM - 12:00 PM", room: "103" },
                 ]
             },
-            "T2": {
-                "name": "Ms. Johnson",
-                "schedule": [
-                    {"week": "Week 1", "day": "Tuesday", "subject": "English", "time": "10:00 AM - 11:30 AM", "room": "103"},
-                    {"week": "Week 4", "day": "Thursday", "subject": "Literature", "time": "1:00 PM - 2:30 PM", "room": "104"},
+            T2: {
+                name: "Ms. Johnson",
+                schedule: [
+                    { week: "Week 1", day: "Tuesday", subject: "English", time: "10:00 AM - 11:30 AM", room: "103" },
+                    { week: "Week 1", day: "Wednesday", subject: "History", time: "1:00 PM - 2:30 PM", room: "104" },
+                    { week: "Week 1", day: "Friday", subject: "Drama", time: "3:00 PM - 4:30 PM", room: "105" },
+                    { week: "Week 4", day: "Monday", subject: "Art", time: "9:00 AM - 10:30 AM", room: "201" },
+                    { week: "Week 4", day: "Thursday", subject: "Literature", time: "1:00 PM - 2:30 PM", room: "104" },
+                    { week: "Week 4", day: "Friday", subject: "Creative Writing", time: "3:00 PM - 4:30 PM", room: "106" },
                 ]
             },
+        };
+
+        // Function to generate schedule
+        function generateSchedule() {
+            const teacherIdInput = document.getElementById("teacherIdInput").value.trim();
+            const weekInput = document.getElementById("weekInput").value;
+            const errorOutput = document.getElementById("errorOutput");
+            const scheduleOutput = document.getElementById("scheduleOutput");
+
+            // Clear previous outputs
+            errorOutput.textContent = "";
+            scheduleOutput.innerHTML = "No schedule generated yet.";
+
+            // Validate input
+            if (!teacherIdInput) {
+                errorOutput.textContent = "Error: Please enter a Teacher ID.";
+                return;
+            }
+
+            if (!teacherSchedule[teacherIdInput]) {
+                errorOutput.textContent = "Error: Teacher ID not found.";
+                return;
+            }
+
+            // Fetch schedule for the teacher and week
+            const teacher = teacherSchedule[teacherIdInput];
+            const filteredSchedule = teacher.schedule.filter(entry => entry.week === weekInput);
+
+            if (filteredSchedule.length === 0) {
+                scheduleOutput.innerHTML = `No schedule found for ${weekInput}.`;
+                return;
+            }
+
+            // Generate schedule table
+            let scheduleText = `<p><strong>Name:</strong> ${teacher.name}</p>`;
+            scheduleText += `<p><strong>Week:</strong> ${weekInput}</p>`;
+            scheduleText += `<table><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr>`;
+            filteredSchedule.forEach(entry => {
+                scheduleText += `<tr><td>${entry.day}</td><td>${entry.subject}</td><td>${entry.time}</td><td>${entry.room}</td></tr>`;
+            });
+            scheduleText += `</table>`;
+
+            // Display the schedule
+            scheduleOutput.innerHTML = scheduleText;
         }
 
-        def generate_schedule(event):
-            teacher_id = Element("teacherIdInput").value.strip()
-            selected_week = Element("weekInput").value
-            error_output = Element("errorOutput")
-            schedule_output = Element("scheduleOutput")
-            
-            # Clear previous outputs
-            error_output.element.innerText = ""
-            schedule_output.element.innerHTML = "No schedule generated yet."
-
-            # Validate input
-            if not teacher_id:
-                error_output.element.innerText = "Error: Please enter a Teacher ID."
-                return
-
-            if teacher_id not in teacher_schedule:
-                error_output.element.innerText = "Error: Teacher ID not found."
-                return
-
-            # Fetch schedule for the teacher and week
-            teacher = teacher_schedule[teacher_id]
-            filtered_schedule = [
-                entry for entry in teacher["schedule"] if entry["week"] == selected_week
-            ]
-
-            if not filtered_schedule:
-                schedule_output.element.innerHTML = f"No schedule found for {selected_week}."
-                return
-
-            schedule_text = f"<p><strong>Name:</strong> {teacher['name']}</p>"
-            schedule_text += f"<p><strong>Week:</strong> {selected_week}</p>"
-            schedule_text += "<table><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr>"
-            for entry in filtered_schedule:
-                schedule_text += (
-                    f"<tr>"
-                    f"<td>{entry['day']}</td>"
-                    f"<td>{entry['subject']}</td>"
-                    f"<td>{entry['time']}</td>"
-                    f"<td>{entry['room']}</td>"
-                    f"</tr>"
-                )
-            schedule_text += "</table>"
-
-            # Display the schedule for week
-            schedule_output.element.innerHTML = schedule_text
-
-        Element("viewSchedule").element.onclick = generate_schedule
-    </py-script>
+        // Attach event listener
+        document.getElementById("viewSchedule").addEventListener("click", generateSchedule);
+    </script>
 </body>
 </html>
