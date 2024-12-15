@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Class Schedule</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .schedule {
+            margin: 0 auto;
+            width: 90%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .time-slot {
+            font-weight: bold;
+            background-color: #e8e8e8;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Tuition Center</div>
+        <ul>
+            <li><a href="createProfile.html">Create Profile</a></li>
+            <li><a href="fee.html">Fee</a></li>
+            <li><a href="viewSchedule.html">View Schedule</a></li>
+            <li><a href="enroll.html">Enroll Subject</a></li>
+            <li><a href="agile.html">Report</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="payment.html">Payment</a></li>
+            <li><a href="progress.html">Student Progress</a></li>
+            <li><a href="gradeEntry.html">Grade Entry</a></li>
+            <li><a href="#">Jiin</a></li>
+            <li><a href="#">Yoosin</a></li>
+            <li><a href="agile3.html">Teaching Schedule</a></li>
+        </ul>
+    </nav>
+    <h1>Student Class Schedule</h1>
+    <div class="schedule">
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                </tr>     
+            </thead>
+            <tbody id="scheduleBody">
+                <!-- Schedule rows will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <py-script>
+        # Class schedule data formatted by time slots and days
+        class_schedule = [
+            {"Time": "8:00 am - 9:00 am", "Monday": "Economics", "Tuesday": "Statistics", "Wednesday": "Economics", "Thursday": "Statistics", "Friday": "Mathematics"},
+            {"Time": "9:00 am - 10:00 am", "Monday": "Chemistry", "Tuesday": "Physics", "Wednesday": "Chemistry", "Thursday": "Physics", "Friday": "English"},
+            {"Time": "10:00 am - 11:00 am", "Monday": "Mathematics", "Tuesday": "Biology", "Wednesday": "Mathematics", "Thursday": "Biology", "Friday": "History"},
+            {"Time": "11:00 am - 12:00 pm", "Monday": "Break", "Tuesday": "Break", "Wednesday": "Break", "Thursday": "Break", "Friday": "Break"},            
+            {"Time": "1:00 pm - 2:00 pm", "Monday": "History", "Tuesday": "Art", "Wednesday": "History", "Thursday": "Art", "Friday": "Physical Education"},
+            {"Time": "2:00 pm - 3:00 pm", "Monday": "Computer Science", "Tuesday": "Physics", "Wednesday": "Computer Science", "Thursday": "Physics", "Friday": "Music"},
+            {"Time": "3:00 pm - 4:00 pm", "Monday": "Art", "Tuesday": "Statistics", "Wednesday": "Art", "Thursday": "Statistics", "Friday": "Biology"},
+        ]
+
+        # Function to populate the table body
+        def load_schedule():
+            tbody = Element("scheduleBody")
+            tbody.clear()  # Clear existing content
+
+            # Dynamically create rows and cells
+            for entry in class_schedule:
+                row = document.createElement("tr")  # Create a table row
+                for value in entry.values():
+                    cell = document.createElement("td")  # Create a table cell
+                    cell.innerHTML = value  # Set the cell content
+                    row.appendChild(cell)  # Append the cell to the row
+                tbody.element.appendChild(row)  # Append the row to the table body
+
+        # Call the function to populate the table on page load
+        load_schedule()
+    </py-script>
+</body>
+</html>

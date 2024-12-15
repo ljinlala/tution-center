@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+                padding: 20px;
+                color: #333;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px; /* Increased width */
+            text-align: center;
+            margin: auto;
+            margin-top: 200px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message-container {
+            margin-top: 20px;
+        }
+
+
+        /* Mobile responsiveness */
+        @media screen and (max-width: 768px) {
+            .login-container {
+                width: 90%; /* Adjust for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Remember to put the navigation -->
+    <nav class="navbar">
+        <div class="logo">Tuition Center</div>
+        <ul>
+            <li><a href="createProfile.html">Create Profile</a></li>
+            <li><a href="fee.html">Fee</a></li>
+            <li><a href="viewSchedule.html">View Schedule</a></li>
+            <li><a href="agile.html">Report</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="payment.html">Payment</a></li>
+            <li><a href="progress.html">Student Progress</a></li>
+            <li><a href="gradeEntry.html">Grade Entry</a></li>
+            <li><a href="#">Jiin</a></li>
+            <li><a href="#">Yoosin</a></li>
+            <li><a href="agile3.html">Teaching Schedule</a></li>
+        </ul>
+    </nav>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="login-form">
+            <label for="id">Student ID:</label>
+            <input type="text" id="id" placeholder="Enter your ID" required />
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password" required />
+            
+            <button type="button" id="login-btn">Login</button>
+        </form>
+
+        <div class="message-container" id="message-container"></div>
+    </div>
+
+    <py-script>
+        # Function to handle login
+        def handle_login(event):
+            # Get input values
+            student_id = Element("id").value
+            password = Element("password").value
+
+            # Load students data from localStorage
+            import js
+            students_str = js.localStorage.getItem("students")
+            if students_str:
+                students = eval(students_str)  # Convert string back to list of dicts
+
+                # Reset the message container before any validation
+                Element("message-container").element.innerHTML = ""
+
+                # Validate login details
+                for student in students:
+                    if student["id"] == student_id and student["password"] == password:
+                        # Show success message
+                        Element("login-form").element.innerHTML = "<h3>Login Successful!</h3>"
+                        return
+                
+                # If no match is found, display error message
+                Element("message-container").element.innerHTML = "<h3>Invalid credentials, please try again.</h3>"
+
+
+                    
+
+        # Function to reset the form and hide messages
+        def resetForm():
+            Element("id").value = ""
+            Element("password").value = ""
+            Element("message-container").element.innerHTML = ""
+            Element("try-again-btn").element.style.display = "none"  # Hide try again button
+
+        # Attach the handle_login function to the button click event
+        Element("login-btn").element.onclick = handle_login
+    </py-script>
+</body>
+</html>
