@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Teaching Schedule</title>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .schedule-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Tuition Center</div>
+        <ul>
+            <li><a href="createProfile.html">Create Profile</a></li>
+            <li><a href="fee.html">Fee</a></li>
+            <li><a href="viewSchedule.html">View Schedule</a></li>
+            <li><a href="agile.html">Report</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="payment.html">Payment</a></li>
+            <li><a href="progress.html">Student Progress</a></li>
+            <li><a href="gradeEntry.html">Grade Entry</a></li>
+            <li><a href="notification.html">Notification</a></li>
+            <li><a href="enroll.html">Enroll Subject</a></li>
+            <li><a href="agile3.html">Teaching Schedule</a></li>
+        </ul>
+    </nav>
+    <div class="form-container">
+        <h2>Weekly Teaching Schedule</h2>
+        <label for="teacherIdInput">Enter Teacher ID:</label>
+        <input type="text" id="teacherIdInput" placeholder="Enter Teacher ID">
+        <br><br>
+        <label for="weekInput">Select Week:</label>
+        <select id="weekInput">
+            <option value="Week 1">Week 1</option>
+            <option value="Week 2">Week 2</option>
+            <option value="Week 3">Week 3</option>
+            <option value="Week 4">Week 4</option>
+        </select>
+        <br><br>
+        <button id="viewSchedule">View Schedule</button>
+        <p id="errorOutput" class="error"></p>
+    </div>
+
+    <div class="schedule-container">
+        <h3>Teaching Schedule</h3>
+        <div id="scheduleOutput">No schedule generated yet.</div>
+    </div>
+
+    <script>
+        // Schedule data
+        const teacherSchedule = {
+            T1: {
+                name: "Mr. Smith",
+                schedule: [
+                    { week: "Week 1", day: "Monday", subject: "Math", time: "9:00 AM - 10:30 AM", room: "101" },
+                    { week: "Week 1", day: "Tuesday", subject: "Science", time: "11:00 AM - 12:00 PM", room: "103" },
+                    { week: "Week 1", day: "Thursday", subject: "Chemistry", time: "2:00 PM - 3:30 PM", room: "201" },
+                    { week: "Week 2", day: "Wednesday", subject: "Physics", time: "11:00 AM - 12:30 PM", room: "102" },
+                    { week: "Week 2", day: "Thursday", subject: "Biology", time: "11:00 AM - 12:30 PM", room: "202" },
+                    { week: "Week 2", day: "Friday", subject: "Science", time: "11:00 AM - 12:00 PM", room: "105" },
+                    { week: "Week 3", day: "Tuesday", subject: "Math", time: "9:00 AM - 10:30 AM", room: "101" },
+                    { week: "Week 3", day: "Friday", subject: "Science", time: "11:00 AM - 12:00 PM", room: "103" },
+                ]
+            },
+            T2: {
+                name: "Ms. Johnson",
+                schedule: [
+                    { week: "Week 1", day: "Tuesday", subject: "English", time: "10:00 AM - 11:30 AM", room: "103" },
+                    { week: "Week 1", day: "Wednesday", subject: "History", time: "1:00 PM - 2:30 PM", room: "104" },
+                    { week: "Week 1", day: "Friday", subject: "Drama", time: "3:00 PM - 4:30 PM", room: "105" },
+                    { week: "Week 4", day: "Monday", subject: "Art", time: "9:00 AM - 10:30 AM", room: "201" },
+                    { week: "Week 4", day: "Thursday", subject: "Literature", time: "1:00 PM - 2:30 PM", room: "104" },
+                    { week: "Week 4", day: "Friday", subject: "Creative Writing", time: "3:00 PM - 4:30 PM", room: "106" },
+                ]
+            },
+        };
+
+        // Function to generate schedule
+        function generateSchedule() {
+            const teacherIdInput = document.getElementById("teacherIdInput").value.trim();
+            const weekInput = document.getElementById("weekInput").value;
+            const errorOutput = document.getElementById("errorOutput");
+            const scheduleOutput = document.getElementById("scheduleOutput");
+
+            // Clear previous outputs
+            errorOutput.textContent = "";
+            scheduleOutput.innerHTML = "No schedule generated yet.";
+
+            // Validate input
+            if (!teacherIdInput) {
+                errorOutput.textContent = "Error: Please enter a Teacher ID.";
+                return;
+            }
+
+            if (!teacherSchedule[teacherIdInput]) {
+                errorOutput.textContent = "Error: Teacher ID not found.";
+                return;
+            }
+
+            // Fetch schedule for the teacher and week
+            const teacher = teacherSchedule[teacherIdInput];
+            const filteredSchedule = teacher.schedule.filter(entry => entry.week === weekInput);
+
+            if (filteredSchedule.length === 0) {
+                scheduleOutput.innerHTML = `No schedule found for ${weekInput}.`;
+                return;
+            }
+
+            // Generate schedule table
+            let scheduleText = `<p><strong>Name:</strong> ${teacher.name}</p>`;
+            scheduleText += `<p><strong>Week:</strong> ${weekInput}</p>`;
+            scheduleText += `<table><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr>`;
+            filteredSchedule.forEach(entry => {
+                scheduleText += `<tr><td>${entry.day}</td><td>${entry.subject}</td><td>${entry.time}</td><td>${entry.room}</td></tr>`;
+            });
+            scheduleText += `</table>`;
+
+            // Display the schedule
+            scheduleOutput.innerHTML = scheduleText;
+        }
+
+        // Attach event listener
+        document.getElementById("viewSchedule").addEventListener("click", generateSchedule);
+    </script>
+</body>
+</html>
