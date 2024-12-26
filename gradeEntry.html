@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Grade Entry</title>
-    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
     <link rel="stylesheet" href="nav.css" />
     <style>
         body {
@@ -284,24 +284,31 @@
         });
     </script>
 
-    <py-script>
-        import js
+<script type="py">
+    import js
 
-        # Function to load students from localStorage
-        def load_students():
-            students_str = js.localStorage.getItem("students")
-            if students_str:
-                students = eval(students_str)  # Convert string back to list of dicts
-                student_select = js.document.getElementById("student")
-                for student in students:
-                    option = js.document.createElement("option")
-                    option.value = student["id"]
-                    option.innerHTML = f"{student['id']} - {student['name']}"
-                    student_select.appendChild(option)
+    # Hardcoded list of students
+    students = [
+        {"id": "ID001", "name": "Qy"},
+        {"id": "ID002", "name": "Ys"},
+        {"id": "ID003", "name": "Jim "},
+        {"id": "ID004", "name": "Daniels"}
+    ]
 
-        # Load students when the page loads
-        load_students()
-    </py-script>
+    # Function to load students into the dropdown
+    def load_students():
+        student_select = js.document.getElementById("student")
+        
+        # Add each student to the dropdown menu
+        for student in students:
+            option = js.document.createElement("option")
+            option.value = student["id"]
+            option.innerHTML = f"{student['id']} - {student['name']}"
+            student_select.appendChild(option)
+
+    # Load students when the page loads
+    load_students()
+</script>
 
 </body>
 </html>

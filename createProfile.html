@@ -5,8 +5,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Profile Creation</title>
-        <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-        <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+        <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+        <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
         <link rel="stylesheet" href="nav.css" />
 
         <style>
@@ -246,178 +246,113 @@
             </div>
         </div>
 
+        <script type="py">
+            from js import document, localStorage
+            from pyodide.ffi import create_proxy, to_js
+            import re
         
-
-        <py-script>
-            # Pre-declared student data
-            students = [
-                {"id": "ID001", "name": "Alice", "email": "alice@example.com", "address": "123 Maple St", "contact": "1234567890", "password": "password123"},
-                {"id": "ID002", "name": "Bob", "email": "bob@example.com", "address": "456 Oak St", "contact": "9876543210", "password": "password456"}
-            ]
-
-            # Save the students array to localStorage
+            # Load existing students from localStorage
+            def load_students():
+                try:
+                    students_data = localStorage.getItem("students")
+                    if students_data:
+                        return eval(students_data)  # Convert string back to a list of dictionaries
+                except Exception as e:
+                    console.log(f"Error loading students: {e}")
+                return []
+        
+            # Save students to localStorage
             def save_students():
-                import js
-                js.localStorage.setItem("students", str(students))
-
+                students_js = to_js(students)  # Convert Python list of students to JavaScript object
+                localStorage.setItem("students", JSON.stringify(students_js))  # Use JSON.stringify to save   
+                
         
-            # Function to auto-generate the next ID
+            # Generate a new ID for students
             def generate_id():
                 last_id = students[-1]["id"] if students else "ID000"
-                new_id = f"ID{int(last_id[2:]) + 1:03d}"
-                return new_id
-
-            # Function to validate form fields (ensure none are empty and no duplication)
-            def validate_form(name, email, address, contact, password):
-                # Check if all fields are filled
-                if not name or not email or not address or not contact or not password:
-                    return "All fields must be filled"
-
-                # Validate Name (alphabet only)
-                if not name.isalpha():
-                    return "Name must contain only letters. Exm: Sam"
-
-                # Validate Email (email format)
-                import re
-                email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                if not re.match(email_regex, email):
-                    return "Invalid email format. Exm: sam@gmail.com"
-                
-                # Validate Address (must contain both letters and numbers)
-                if not any(c.isdigit() for c in address) or not any(c.isalpha() for c in address):
-                    return "Address must contain both letters and numbers. Exm: 1, Street"
-                
-                # Validate Contact (only numbers)
-                if not contact.isdigit():
-                    return "Contact must be numeric. Exm: 0125467373"
-
-                if len(contact)!= 10:
-                    return "Contact must have 10 or 11 digit only. "
-                
-                # Check for duplication
+                return f"ID{int(last_id[2:]) + 1:03d}"
+        
+            # Update the student table
+            def update_table():
+                table_body = document.querySelector("#student-table-body")
+                table_body.innerHTML = ""  # Clear existing rows
+        
                 for student in students:
-                    if student["name"] == name:
-                        return "Name already exists"
-                    if student["email"] == email:
-                        return "Email already exists"
-                    if student["password"] == password:
-                        return "Password already exists"
-                
+                    row = document.createElement("tr")
+                    for key in ["id", "name", "email", "address", "contact", "password"]:
+                        cell = document.createElement("td")
+                        cell.textContent = student[key]
+                        row.appendChild(cell)
+                    table_body.appendChild(row)
+        
+            # Validate form inputs
+            def validate_form(name, email, address, contact, password):
+                if not all([name, email, address, contact, password]):
+                    return "All fields must be filled."
+                if not name.isalpha():
+                    return "Name must contain only letters."
+                if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
+                    return "Invalid email format."
+                if not any(c.isalpha() for c in address) or not any(c.isdigit() for c in address):
+                    return "Address must contain both letters and numbers."
+                if not contact.isdigit() or not (10 <= len(contact) <= 11):
+                    return "Contact must be numeric and 10-11 digits long."
+                if any(student["email"] == email for student in students):
+                    return "Email already exists."
                 return None
         
-            # Function to add a new student to the list
+            # Add a new student
             def add_student(event):
-                name = Element("name").value
-                email = Element("email").value
-                address = Element("address").value
-                contact = Element("contact").value
-                password = Element("password").value
-
-                # Validate if all fields are filled and no duplication
-                validation_error = validate_form(name, email, address, contact, password)
-                if validation_error:
-                    Element("error-message").element.innerHTML = validation_error
-                    Element("errorModal").element.style.display = "flex"  # Show modal
-                    return  # Exit if validation fails
+                name = document.querySelector("#name").value
+                email = document.querySelector("#email").value
+                address = document.querySelector("#address").value
+                contact = document.querySelector("#contact").value
+                password = document.querySelector("#password").value
         
-                # Create a new student dictionary
-                new_student = {
-                    "id": generate_id(),
-                    "name": name,
-                    "email": email,
-                    "address": address,
-                    "contact": contact,
-                    "password": password
-                }
+                error = validate_form(name, email, address, contact, password)
+                if error:
+                    document.querySelector("#error-message").textContent = error
+                    document.querySelector("#errorModal").style.display = "flex"
+                    return
+        
+                new_student = {"id": generate_id(), "name": name, "email": email, "address": address, "contact": contact, "password": password}
                 students.append(new_student)
-                Element("successModal").element.style.display = "flex"
                 save_students()
                 update_table()
                 clear_form()
-                               
-
-                # Add this line to show a success alert
-                import js
-                js.alert("Student profile created successfully!")
-
-            # Function to load students from localStorage
-            def load_students():
-                import js
-                try:
-                    students_str = js.localStorage.getItem("students")
-                    if students_str:
-                        return eval(students_str)  # Convert string back to a list of dictionaries
-                except Exception as e:
-                    return []
-                return []
+                document.querySelector("#successModal").style.display = "flex"
         
-            # Initialize the students array
-            students = load_students()
-            
-            # Function to update the table with student data
-            def update_table():
-                table_body = Element("student-table-body")
-                table_body.element.innerHTML = ""  # Clear current table
-        
-                for student in students:
-                    # Create a new row element <tr>
-                    row = document.createElement("tr")
-        
-                    # Create table data <td> for each student attribute
-                    id_cell = document.createElement("td")
-                    id_cell.innerHTML = student["id"]
-                    row.appendChild(id_cell)
-        
-                    name_cell = document.createElement("td")
-                    name_cell.innerHTML = student["name"]
-                    row.appendChild(name_cell)
-        
-                    email_cell = document.createElement("td")
-                    email_cell.innerHTML = student["email"]
-                    row.appendChild(email_cell)
-        
-                    address_cell = document.createElement("td")
-                    address_cell.innerHTML = student["address"]
-                    row.appendChild(address_cell)
-        
-                    contact_cell = document.createElement("td")
-                    contact_cell.innerHTML = student["contact"]
-                    row.appendChild(contact_cell)
-
-                    password_cell = document.createElement("td")
-                    password_cell.innerHTML = student["password"]
-                    row.appendChild(password_cell)
-        
-                    # Append the row to the table body
-                    table_body.element.appendChild(row)
-        
-            # Function to clear the form after submission
+            # Clear the form inputs
             def clear_form():
-                Element("name").value = ""
-                Element("email").value = ""
-                Element("address").value = ""
-                Element("contact").value = ""
-                Element("password").value = ""
+                for field_id in ["name", "email", "address", "contact", "password"]:
+                    document.querySelector(f"#{field_id}").value = ""
         
-            # Set up event listener for "Add Student" button
-            Element("addStudentBtn").element.onclick = add_student
-        
-            # Initialize the table with pre-declared data
-            update_table()
-
-            # Function to close the modal when the close button is clicked
+            # Close modals
             def close_modal(event):
-                Element("errorModal").element.style.display = "none"
-
-            # Attach the close modal function to the close button
-            Element("closeModal").element.onclick = close_modal
-
+                document.querySelector("#errorModal").style.display = "none"
+        
             def close_success_modal(event):
-                Element("successModal").element.style.display = "none"
-
-            # Attach the close success modal function to the close button
-            Element("closeSuccessModal").element.onclick = close_success_modal
-
-        </py-script>          
+                document.querySelector("#successModal").style.display = "none"
+        
+            # Event listeners setup using proxies
+            def setup_event_listeners():
+                add_student_proxy = create_proxy(add_student)
+                document.querySelector("#addStudentBtn").addEventListener("click", add_student_proxy)
+        
+                close_modal_proxy = create_proxy(close_modal)
+                document.querySelector("#closeModal").addEventListener("click", close_modal_proxy)
+        
+                close_success_modal_proxy = create_proxy(close_success_modal)
+                document.querySelector("#closeSuccessModal").addEventListener("click", close_success_modal_proxy)
+        
+            # Initialize data
+            students = load_students()
+            update_table()
+        
+            # Set up event listeners
+            setup_event_listeners()
+        </script>
+                
+               
     </body>
 </html>
