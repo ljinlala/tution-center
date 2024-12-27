@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monthly Progress Report</title>
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
     <link rel="stylesheet" href="nav.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: white;
         }
         .form-container {
             max-width: 600px;
@@ -71,8 +72,10 @@
         <pre id="reportOutput">No report generated yet.</pre>
     </div>
 
-    <py-script>
+    <script type="py">
         from datetime import datetime
+        from pyodide.ffi import to_js
+        from js import document
 
         student_progress = {
             "2300163": {
@@ -111,21 +114,21 @@
 
         def generate_report(event):
             # Get the entered student ID
-            student_id = Element("studentIdInput").value.strip()
-            error_output = Element("errorOutput")
-            report_output = Element("reportOutput")
+            student_id = document.getElementById("studentIdInput").value.strip()
+            error_output = document.getElementById("errorOutput")
+            report_output = document.getElementById("reportOutput")
             
             # Clear previous error message
-            error_output.element.innerText = ""
-            report_output.element.innerText = "No report generated yet."
+            error_output.innerText = ""
+            report_output.innerText = "No report generated yet."
 
             # Validate student ID
             if not student_id:
-                error_output.element.innerText = "Error: Please enter a Student ID."
+                error_output.innerText = "Error: Please enter a Student ID."
                 return
 
             if student_id not in student_progress:
-                error_output.element.innerText = "Error: Student ID not found. Please check and try again."
+                error_output.innerText = "Error: Student ID not found. Please check and try again."
                 return
 
             student = student_progress[student_id]
@@ -140,10 +143,10 @@
             report_text += f"Generated On: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
             # Display the report
-            report_output.element.innerText = report_text
+            report_output.innerText = report_text
 
         # Bind the Python function to the button click
-        Element("generateReport").element.onclick = generate_report
-    </py-script>
+        document.getElementById("generateReport").addEventListener("click",  to_js(generate_report))
+    </script>
 </body>
 </html>
