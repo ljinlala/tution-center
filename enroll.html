@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject Enrollment</title>
-    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
     <link rel="stylesheet" href="nav.css" />
     <style>
         body {
@@ -116,7 +117,7 @@
         <div class="subject-card">
             <h3>Science</h3>
             <p><strong>Teacher:</strong> Ms. Johnson</p>
-            <p><strong>Schedule:</strong> Tuesdays and Thursdays, 11:00 AM - 12:30 PM</p>
+            <p><strong>Schedule:</strong> Mondays and Fridays, 11:00 AM - 11:30 AM</p>
             <p><strong>Cost:</strong> RM 180</p>
             <p><strong>Duration:</strong> 4 months</p>
             <p><strong>Location:</strong> Lab A</p>
@@ -170,11 +171,17 @@
     <div id="enrollment-status"></div>
 
     <!-- PyScript -->
-    <py-script>
+    <script type="py">
         from js import document, alert
         
-        # List to track enrolled subjects
-        enrolled_subjects = []
+        # List to track enrolled subjects and their schedules
+        enrolled_subjects = {}
+        subject_schedules = {
+            "Mathematics": ("Monday", "10:00", "11:30"),
+            "Science": ("Monday", "10:00", "11:30"),
+            "English Language": ("Friday", "09:00", "10:30"),
+            "History": ("Monday", "14:00", "15:30")
+        }
         
         def validate_name(name):
             return name.isalpha()
@@ -191,6 +198,14 @@
         def validate_year(year):
             return year != ""
         
+        def is_schedule_conflict(new_subject_schedule):
+            for subject, schedule in enrolled_subjects.items():
+                # Check if the new subject has the same day and overlaps in time
+                if (new_subject_schedule[0] == schedule[0] and
+                    not (new_subject_schedule[2] <= schedule[1] or new_subject_schedule[1] >= schedule[2])):
+                    return True
+            return False
+        
         def submit_enrollment():
             student_name = document.getElementById("student-name").value
             gender = document.getElementById("gender").value
@@ -198,6 +213,7 @@
             email_address = document.getElementById("email-address").value
             year = document.getElementById("year").value
             subject = document.getElementById("selected-subject").innerHTML
+            subject_schedule = subject_schedules[subject]
         
             if not validate_name(student_name):
                 alert("Name must contain only letters!")
@@ -220,6 +236,11 @@
                 alert(f"You have already enrolled in {subject}.")
                 return
         
+            # Check for scheduling conflicts
+            if is_schedule_conflict(subject_schedule):
+                alert(f"Enrollment conflict! You have another subject scheduled on {subject_schedule[0]} during {subject_schedule[1]} to {subject_schedule[2]}.")
+                return
+        
             # Hide the success message before enrolling
             status_div = document.getElementById("enrollment-status")
             status_div.style.display = "none"
@@ -228,8 +249,8 @@
             status_div.innerHTML = f"<strong>Success!</strong> {student_name} ({gender}) has been enrolled in {subject}. Contact: {phone_number}, Email: {email_address}, Year: {year}."
             status_div.style.display = "block"
         
-            # Add the subject to the list of enrolled subjects
-            enrolled_subjects.append(subject)
+            # Add the subject and its schedule to the list of enrolled subjects
+            enrolled_subjects[subject] = subject_schedule
         
             # Disable the enroll button for this subject
             disable_enroll_button(subject)
@@ -275,7 +296,8 @@
                     button.innerHTML = "Enrolled"  # Change button text to indicate it's enrolled
         
         setup()
-        </py-script>        
+        </script>
+              
 
 </body>
 </html>

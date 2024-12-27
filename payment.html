@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Receipt</title>
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
     <link rel="stylesheet" href="nav.css" />
     <style>
         /* CSS for Receipt Layout */
@@ -25,7 +26,9 @@
             margin-bottom: 20px;
         }
 
-        .general-info, .total-section, .payment-method {
+        .general-info,
+        .total-section,
+        .payment-method {
             margin: 15px 0;
         }
 
@@ -38,7 +41,8 @@
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: left;
@@ -68,8 +72,28 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
+
+        .credit-card-details {
+            display: none;
+            /* Initially hidden */
+            margin-top: 15px;
+        }
+
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .success-message {
+            color: green;
+        }
+        
+        .error-message {
+            color: red;
+        }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="logo">Tuition Center</div>
@@ -97,8 +121,8 @@
             <p><strong>Student ID:</strong> <span id="studentId">S12345</span></p>
             <p><strong>Year:</strong> <span id="year">3</span></p>
             <p><strong>Contact No:</strong> <span id="contactNo">012-3456789</span></p>
-            <p><strong>Available to Pay:</strong> <span id="availableToPay">01-12-2024</span></p>
-            <p><strong>Due Date:</strong> <span id="dueDate">31-12-2024</span></p>
+            <p><strong>Payment Date:</strong> <span id="paymentDate">03-12-2024</span></p>
+            <p><strong>Due Date:</strong> <span id="dueDate" style="font-weight: bold;">31-12-2024</span></p>
         </div>
 
         <div class="course-table">
@@ -111,85 +135,163 @@
                     </tr>
                 </thead>
                 <tbody id="courseList">
-                    <!-- Dynamic rows will be appended by PyScript -->
+                    <!-- Dynamic rows will be appended by JavaScript -->
                 </tbody>
             </table>
         </div>
 
         <div class="total-section">
-            <p><strong>Total Amount:</strong> RM <span id="totalAmount">0</span></p>
+            <p><strong>Total Amount:</strong> RM <span id="totalAmount">1295.00</span></p>
             <p><em>Parents must be paid all the course(s) every month.</em></p>
         </div>
 
         <div class="payment-method">
             <label for="paymentMethod">Choose Payment Method:</label>
-            <select id="paymentMethod">
+            <select id="paymentMethod" onchange="handlePaymentMethodChange()">
+                <option value="select">Select Payment Method</option>
                 <option value="creditCard">Credit Card</option>
-                <option value="debitCard">Debit Card</option>
-                <option value="e-wallet">E-Wallet</option>
-                <option value="bankTransfer">Bank Transfer</option>
             </select>
-            <button type="button" id="payButton" disabled>Pay</button>
+
+            <div class="credit-card-details" id="creditCardDetails">
+                <h4>Credit Card Information</h4>
+                <label for="cardNumber">Card Number:</label>
+                <input type="text" id="cardNumber" required placeholder="1234 5678 9012 3456" /><br />
+
+                <label for="expiryMonth">Expiry Month:</label>
+                <input type="number" id="expiryMonth" min="1" max="12" required placeholder="MM" style="width: 50px;" />
+
+                <label for="expiryYear">Expiry Year:</label>
+                <input type="number" id="expiryYear" min="2024" required placeholder="YYYY" style="width: 80px;" /><br />
+
+                <label for="ccv">CCV:</label>
+                <input type="text" id="ccv" required placeholder="123" /><br />
+
+                <button type="button" id="confirmPaymentButton" onclick="processPayment()">Confirm Payment</button>
+            </div>
         </div>
         <p id="message"></p>
     </div>
 
-    <py-script>
-        # Define course details 
-        courses = [
-            {"name": "Mathematics", "fee": 100},
-            {"name": "Physics", "fee": 120},
-            {"name": "Biology", "fee": 130},
-            {"name": "Economics", "fee": 110},
-            {"name": "Statistics", "fee": 115},
-            {"name": "Chemistry", "fee": 125},
-            {"name": "English", "fee": 105},
-            {"name": "History", "fee": 90},
-            {"name": "Art", "fee": 85},
-            {"name": "Physical Education", "fee": 95},
-            {"name": "Computer Science", "fee": 140},
-            {"name": "Music", "fee": 80}
-        ]
+    <script>
+        // Define course details 
+        const courses = [
+            { name: "Mathematics", fee: 100 },
+            { name: "Physics", fee: 120 },
+            { name: "Biology", fee: 130 },
+            { name: "Economics", fee: 110 },
+            { name: "Statistics", fee: 115 },
+            { name: "Chemistry", fee: 125 },
+            { name: "English", fee: 105 },
+            { name: "History", fee: 90 },
+            { name: "Art", fee: 85 },
+            { name: "Physical Education", fee: 95 },
+            { name: "Computer Science", fee: 140 },
+            { name: "Music", fee: 80 },
+        ];
 
-        # Function to update the course list and total amount
-        def update_receipt():
-            # Update course list in the table
-            course_table = Element("courseList")
-            course_table.clear()  # Clear existing rows
-            
-            # Check if courses are empty
-            if not courses:
-                Element("totalAmount").write("0")
-                Element("payButton").element.disabled = True
-                return
-            
-            total_amount = 0
-            for course in courses:
-                row = f"<tr><td>{course['name']} : </td><td>RM {course['fee']:.2f}</td></tr>"
-                course_table.write(row, append=True)
-                total_amount += course["fee"]
+        // Handle change in payment method selection
+        function handlePaymentMethodChange() {
+            const paymentMethod = document.getElementById("paymentMethod").value;
+            const creditCardDetails = document.getElementById("creditCardDetails");
 
-            # Update total amount
-            Element("totalAmount").write(f"{total_amount:.2f}")
-            # Enable Pay button if total amount is greater than 0
-            Element("payButton").element.disabled = (total_amount <= 0)
+            if (paymentMethod === "creditCard") {
+                creditCardDetails.style.display = "block"; // Show credit card fields
+            } else {
+                creditCardDetails.style.display = "none"; // Hide if not selected
+            }
+        }
 
-        # Function for payment action
-        def pay_action(event=None):
-            if not courses:
-                Element("message").element.innerHTML = "No courses enrolled. Payment cannot be processed."
-                Element("message").element.style.color = "red"
-                return
-            
-            payment_method = Element("paymentMethod").element.value
-            Element("message").element.innerHTML = (
-                f"Payment successfully completed using {payment_method}! Thank you!"
-            )
-            Element("message").element.style.color = "green"
+        // Function to handle payment processing
+        function processPayment() {
+            const cardNumber = document.getElementById("cardNumber").value;
+            const expiryMonth = document.getElementById("expiryMonth").value;
+            const expiryYear = document.getElementById("expiryYear").value;
+            const ccv = document.getElementById("ccv").value;
+            const messageElement = document.getElementById("message");
+            const dueDate = new Date(document.getElementById("dueDate").innerText.split('-').reverse().join('-'));
+        
+            // Set payment date to today
+            const paymentDate = new Date();
+            const formattedPaymentDate = paymentDate.toLocaleDateString('en-GB');
+            document.getElementById("paymentDate").innerText = formattedPaymentDate;
+        
+            let penaltyFee = 0;
+        
+            // Validate credit card information
+            if (validateCreditCard(cardNumber, expiryMonth, expiryYear, ccv)) {
+                // Check if payment date is after due date
+                if (paymentDate > dueDate) {
+                    penaltyFee = 50; // Fixed penalty fee
+                    messageElement.className = "success-message"; // Set class for error
+                    messageElement.innerText = "Payment received with penalty fee!";
+                } else {
+                    messageElement.className = "success-message"; // Set class for success
+                    messageElement.innerText = "Payment received!";
+                }
+        
+                // Calculate total with penalty if applicable
+                const totalAmount = courses.reduce((total, course) => total + course.fee, 0) + penaltyFee;
+                document.getElementById("totalAmount").innerText = totalAmount.toFixed(2);
+        
+                // Update course list with penalty fee
+                const courseList = document.getElementById("courseList");
+                courseList.innerHTML = ''; // Clear existing list
+                courses.forEach(course => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${course.name}</td><td>${course.fee.toFixed(2)}</td>`;
+                    courseList.appendChild(row);
+                });
+        
+                // Add penalty fee to the course list
+                if (penaltyFee > 0) {
+                    const penaltyRow = document.createElement("tr");
+                    penaltyRow.innerHTML = `<td><strong>Penalty Fee</strong></td><td>RM ${penaltyFee.toFixed(2)}</td>`;
+                    courseList.appendChild(penaltyRow);
+                }
+            } else {
+                messageElement.className = "error-message"; // Set class for error
+                messageElement.innerText = "Invalid credit card details!";
+            }
+        }
+        
+        // Basic validation for credit card details
+        function validateCreditCard(cardNumber, month, year, ccv) {
+            const cardNumberPattern = /^\d{16}$/;
+            const ccvPattern = /^\d{3}$/;
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
 
-        # Attach event to Pay button and update receipt initially
-        Element("payButton").element.onclick = pay_action
-        update_receipt()
-    </py-script>
+            if (!cardNumberPattern.test(cardNumber) || !ccvPattern.test(ccv)) {
+                return false;
+            }
+
+            if (month < 1 || month > 12 || year < currentYear) {
+                return false;
+            }
+
+            // Check if card is expired
+            if (year == currentYear && month < currentMonth) {
+                return false;
+            }
+
+            return true;
+        }
+
+        // Populate the course list dynamically
+        function populateCourseList() {
+            const courseList = document.getElementById("courseList");
+            courses.forEach(course => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${course.name}</td><td>${course.fee.toFixed(2)}</td>`;
+                courseList.appendChild(row);
+            });
+        }
+
+        // Initialize the receipt with course details
+        window.onload = function () {
+            populateCourseList();
+        };
+    </script>
 </body>
+
 </html>
