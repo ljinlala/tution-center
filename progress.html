@@ -63,6 +63,22 @@
         <label for="studentIdInput">Enter Student ID:</label>
         <input type="text" id="studentIdInput" placeholder="Enter Student ID">
         <br><br>
+        <label for="monthSelect">Select Month:</label>
+        <select id="monthSelect">
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+        <br><br>
         <button id="generateReport">View Progress Report</button>
         <p id="errorOutput" class="error"></p>
     </div>
@@ -77,44 +93,44 @@
         from pyodide.ffi import to_js
         from js import document
 
+        # Sample student progress data including monthly reports
         student_progress = {
             "2300163": {
                 "name": "Woon",
-                "subjects": {
-                    "Math": 85,
-                    "Science": 90,
-                    "English": 88
-                },
-                "remarks": "Good performance"
+                "monthly_reports": {
+                    "01": {"Math": 85, "Science": 90, "English": 88, "remarks": "Good performance"},
+                    "02": {"Math": 87, "Science": 92, "English": 90, "remarks": "Improved performance"},
+                    "03": {"Math": 89, "Science": 94, "English": 92, "remarks": "Excellent work"}
+                }
             },
             "2309460": {
                 "name": "Helen",
-                "subjects": {
-                    "Math": 70,
-                    "Science": 75,
-                    "English": 80
-                },
-                "remarks": "Needs improvement"
-            },
-            "2300110": {
-                "name": "Charlie",
-                "subjects": {
-                    "Math": 95,
-                    "Science": 92,
-                    "English": 89
-                },
-                "remarks": "Excellent work"
-            },
+                "remarks": "Needs improvement",
+                "monthly_reports": {
+                    "01": {"Math": 70, "Science": 75, "English": 80, "remarks": "Needs improvement"},
+                    "02": {"Math": 72, "Science": 77, "English": 82, "remarks": "Slight improvement"},
+                    "03": {"Math": 75, "Science": 80, "English": 85, "remarks": "Progressing well"}
+                }
+            }
         }
 
         def calculate_overall_average(subject_scores):
-            total_score = sum(subject_scores.values())
-            num_subjects = len(subject_scores)
-            return round(total_score / num_subjects, 2)
+            total_score = 0
+            num_subjects = 0
+            for score in subject_scores.values():
+                try:
+                    score_value = float(score)
+                    total_score += score_value
+                    num_subjects += 1
+                except ValueError:
+                    # Skip non-numeric values
+                    continue
+            return round(total_score / num_subjects, 2) if num_subjects > 0 else 0
 
         def generate_report(event):
-            # Get the entered student ID
+            # Get the entered student ID and selected month
             student_id = document.getElementById("studentIdInput").value.strip()
+            month = document.getElementById("monthSelect").value
             error_output = document.getElementById("errorOutput")
             report_output = document.getElementById("reportOutput")
             
@@ -132,21 +148,32 @@
                 return
 
             student = student_progress[student_id]
+
+            # Check if there is a report for the selected month
+            if month not in student["monthly_reports"]:
+                error_output.innerText = "Error: No report found for the selected month."
+                return
+
+            # Get the selected month's report
+            monthly_report = student["monthly_reports"][month]
+
+            # Prepare the report text
             report_text = f"Name: {student['name']}\n\nSubjects:\n"
-            for subject, score in student["subjects"].items():
-                report_text += f"- {subject}: Score = {score}\n"
+            for subject, score in monthly_report.items():
+                if subject != "remarks":
+                    report_text += f"- {subject}: Score = {score}\n"
 
             # Calculate overall average
-            overall_average = calculate_overall_average(student["subjects"])
+            overall_average = calculate_overall_average(monthly_report)
             report_text += f"\nOverall Average Score: {overall_average}%\n"
-            report_text += f"Remarks: {student['remarks']}\n"
+            report_text += f"Remarks: {monthly_report['remarks']}\n"
             report_text += f"Generated On: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
             # Display the report
             report_output.innerText = report_text
 
         # Bind the Python function to the button click
-        document.getElementById("generateReport").addEventListener("click",  to_js(generate_report))
+        document.getElementById("generateReport").addEventListener("click", to_js(generate_report))
     </script>
 </body>
 </html>
