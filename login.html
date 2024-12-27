@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
     <link rel="stylesheet" href="nav.css" />
     <style>
         body {
@@ -23,7 +23,7 @@
             width: 400px; /* Increased width */
             text-align: center;
             margin: auto;
-            margin-top: 200px;
+            margin-top: 100px;
         }
 
         h2 {
@@ -90,8 +90,8 @@
             <li><a href="payment.html">Payment</a></li>
             <li><a href="progress.html">Student Progress</a></li>
             <li><a href="gradeEntry.html">Grade Entry</a></li>
-            <li><a href="#">Jiin</a></li>
-            <li><a href="#">Yoosin</a></li>
+            <li><a href="notification.html">Notification</a></li>
+            <li><a href="enroll.html">Enroll Subject</a></li>
             <li><a href="agile3.html">Teaching Schedule</a></li>
         </ul>
     </nav>
@@ -110,45 +110,47 @@
 
         <div class="message-container" id="message-container"></div>
     </div>
+        
+    <script type="py">
+        from js import document
+        from pyodide.ffi import create_proxy
 
-    <py-script>
+        # Hardcoded list of students
+        students = [
+            {"id": "ID001", "name": "John Doe", "password": "password123"},
+            {"id": "ID002", "name": "Jane Doe", "password": "password456"}
+        ]
+    
         # Function to handle login
         def handle_login(event):
+            # Get references to the DOM elements
+            login_btn = document.querySelector("#login-btn")
+            message_container = document.querySelector("#message-container")
+            login_form = document.querySelector("#login-form")
+            student_id_input = document.querySelector("#id")
+            password_input = document.querySelector("#password")
+    
             # Get input values
-            student_id = Element("id").value
-            password = Element("password").value
+            student_id = student_id_input.value
+            password = password_input.value
+    
+            message_container.innerHTML = ""  # Clear any previous messages
+    
+            # Validate login details
+            for student in students:
+                if student["id"] == student_id and student["password"] == password:
+                    # Show success message
+                    login_form.innerHTML = "<h3>Login Successful!</h3>"
+                    return
+    
+            # If no match is found, display error message
+            message_container.innerHTML = "<h3>Invalid credentials, please try again.</h3>"
 
-            # Load students data from localStorage
-            import js
-            students_str = js.localStorage.getItem("students")
-            if students_str:
-                students = eval(students_str)  # Convert string back to list of dicts
-
-                # Reset the message container before any validation
-                Element("message-container").element.innerHTML = ""
-
-                # Validate login details
-                for student in students:
-                    if student["id"] == student_id and student["password"] == password:
-                        # Show success message
-                        Element("login-form").element.innerHTML = "<h3>Login Successful!</h3>"
-                        return
-                
-                # If no match is found, display error message
-                Element("message-container").element.innerHTML = "<h3>Invalid credentials, please try again.</h3>"
-
-
-                    
-
-        # Function to reset the form and hide messages
-        def resetForm():
-            Element("id").value = ""
-            Element("password").value = ""
-            Element("message-container").element.innerHTML = ""
-            Element("try-again-btn").element.style.display = "none"  # Hide try again button
-
-        # Attach the handle_login function to the button click event
-        Element("login-btn").element.onclick = handle_login
-    </py-script>
+        # Attach the handle_login function to the button click event using create_proxy to keep it alive
+        login_btn = document.querySelector("#login-btn")
+        login_btn_proxy = create_proxy(handle_login)  # Create a proxy for the event handler
+        login_btn.addEventListener("click", login_btn_proxy)
+    </script>
+    
 </body>
 </html>
