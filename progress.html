@@ -133,10 +133,12 @@
             month = document.getElementById("monthSelect").value
             error_output = document.getElementById("errorOutput")
             report_output = document.getElementById("reportOutput")
+            success_message = document.getElementById("successMessage")
             
             # Clear previous error message
             error_output.innerText = ""
             report_output.innerText = "No report generated yet."
+            success_message.innerText = "" 
 
             # Validate student ID
             if not student_id:
@@ -171,9 +173,11 @@
 
             # Display the report
             report_output.innerText = report_text
+            success_message.innerText = "Report generated successfully!"
 
         # Bind the Python function to the button click
         document.getElementById("generateReport").addEventListener("click", to_js(generate_report))
     </script>
+    <p id="successMessage" style="color: green;"></p>
 </body>
 </html>
