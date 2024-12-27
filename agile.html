@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Performance Report</title>
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
     <link rel="stylesheet" href="nav.css" />
     <style>
         body {
@@ -64,6 +64,22 @@
             <option value="3">Alan Walker</option>
         </select>
         <br><br>
+        <label for="monthId">Select Month:</label>
+        <select id="monthId">
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+        </select>
+        <br><br>
         <button id="generateReport">Generate Report</button>
     </div>
 
@@ -72,37 +88,63 @@
         <pre id="reportOutput">No report generated yet.</pre>
     </div>
 
-    <py-script>
+    <script type="py">
         from datetime import datetime
+        from pyodide.ffi import to_js
+        from js import document
 
-        # Sample teacher performance data
+        # Sample teacher performance data by month
         teachers_data = {
-            "1": {"name": "John Doe", "students_taught": 30, "avg_score": 85, "feedback_score": 4.5},
-            "2": {"name": "Jane Smith", "students_taught": 25, "avg_score": 90, "feedback_score": 4.8},
-            "3": {"name": "Alan Walker", "students_taught": 40, "avg_score": 80, "feedback_score": 4.3},
+            "1": {
+                "name": "John Doe",
+                "monthly_performance": {
+                    "January": {"students_taught": 30, "avg_score": 85, "feedback_score": 4.5},
+                    "February": {"students_taught": 28, "avg_score": 83, "feedback_score": 4.6},
+                    # Additional months...
+                }
+            },
+            "2": {
+                "name": "Jane Smith",
+                "monthly_performance": {
+                    "January": {"students_taught": 25, "avg_score": 90, "feedback_score": 4.8},
+                    "February": {"students_taught": 27, "avg_score": 88, "feedback_score": 4.7},
+                    # Additional months...
+                }
+            },
+            "3": {
+                "name": "Alan Walker",
+                "monthly_performance": {
+                    "January": {"students_taught": 40, "avg_score": 80, "feedback_score": 4.3},
+                    "February": {"students_taught": 38, "avg_score": 82, "feedback_score": 4.4},
+                    # Additional months...
+                }
+            }
         }
 
-        def generate_report(event):
-            # Get the selected teacher ID
-            teacher_id = Element("teacherId").value
+        def generate_report(event=None):
+            # Access the teacher ID and month from the dropdowns
+            teacher_id = document.getElementById("teacherId").value
+            month = document.getElementById("monthId").value
             teacher = teachers_data.get(teacher_id)
 
-            if not teacher:
-                report_text = "Error: Teacher not found."
+            if not teacher or month not in teacher["monthly_performance"]:
+                report_text = "Error: Data not available for the selected teacher or month."
             else:
+                performance = teacher["monthly_performance"][month]
                 report_text = (
                     f"Name: {teacher['name']}\n"
-                    f"Students Taught: {teacher['students_taught']}\n"
-                    f"Average Student Score: {teacher['avg_score']}%\n"
-                    f"Feedback Score: {teacher['feedback_score']} / 5\n"
+                    f"Month: {month}\n"
+                    f"Students Taught: {performance['students_taught']}\n"
+                    f"Average Student Score: {performance['avg_score']}%\n"
+                    f"Feedback Score: {performance['feedback_score']} / 5\n"
                     f"Generated On: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
                 )
 
-            # Display the report
-            Element("reportOutput").element.innerText = report_text
+            # Display the report in the output container
+            document.getElementById("reportOutput").innerText = report_text
 
-        # Bind the Python function to the button click
-        Element("generateReport").element.onclick = generate_report
-    </py-script>
+        # Bind the function to the button click
+        document.getElementById("generateReport").addEventListener("click", to_js(generate_report))
+    </script>
 </body>
 </html>
